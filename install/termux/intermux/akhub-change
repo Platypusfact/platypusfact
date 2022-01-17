@@ -1,0 +1,70 @@
+#!/data/data/com.termux/files/usr/bin/bash
+
+if [ "$1" == "--help" ] || [ "$1" == "-help" ]; then
+    echo "Script for redirecting subscribed repositories to mirrors."
+    echo "You can choose between mirrors listed at"
+    echo "https://github.com/termux/termux-packages/wiki/Mirrors"
+    exit 0
+fi
+select_repository() {
+    if [ "$1" == "Default repositories" ]; then
+        echo "[*] Termux  selected"
+
+    elif [ "$1" == "Platypusfact" ]; then
+        echo "[*] Termux Platypusfact selected"
+
+    elif [ "$1" == "AK-HUB" ]; then
+        echo "[*] AK-HUB mirrors selected"
+
+    elif [ "$1" == "AK-HUB-S" ]; then
+        echo "[*] AK-HUB-S mirrors selected"
+
+    elif [ "$1" == "AK-HUB-TOOLS" ]; then
+        echo "[*] AK-HUB-TOOLS mirrors selected"
+
+    elif [ "$1" == "Ajay-o-s" ]; then
+        echo "[*] Ajay-o-s mirrors selected"
+
+    else
+     echo "[!] Error: unknown repository: '$1'. Exiting"
+        exit 1
+    fi
+
+}
+TEMPFILE="$(mktemp /data/data/com.termux/files/usr/tmp/akhub.XXXXXX)"
+
+REPOSITORIES=()
+REPOSITORIES+=("Main repository" "akhub-packages" "on")
+REPOSITORIES+=("Main repository" "akhubs-packages" "on")
+REPOSITORIES+=("Main repository" "ajay-o-s-packages" "on")
+
+dialog \
+    --title "akhub-change-repo" --clear \
+    --checklist "Which repositories do you want to edit? Select with space." 0 0 0 \
+    "${REPOSITORIES[@]}" --and-widget \
+    --title "akhub-change-repo" --clear \
+    --radiolist "Which mirror do you want to use?" 0 0 0 \
+    "Default repositories" "Default host" on \
+    "Platypusfact" "host with Platypusfact" on \
+    "AK-HUB" "Hosted with AK-HUB" off \
+    "AK-HUB-S" "Hosted on AK-HUB-S" off \
+    "AK-HUB-TOOLS" "Hosted on AK-HUB-TOOLS" off \
+    "Ajay-o-s" "Hosted on Ajay-o-s" off \
+    2> "$TEMPFILE"
+
+retval=$?
+clear
+
+case $retval in
+    0)
+        echo "case \$retval in"
+        ;;
+    1)
+        # Cancel pressed
+        exit
+        ;;
+    255)
+        # Esc pressed
+        exit
+        ;;
+esac
